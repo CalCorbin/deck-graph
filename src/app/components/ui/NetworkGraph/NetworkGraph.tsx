@@ -2,7 +2,7 @@
 
 import { useCards } from '@/hooks/useCards';
 import { MagicCard } from '@/app/components/features/MagicCard/MagicCard';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { SimulationNodeDatum, SimulationLinkDatum, Simulation } from 'd3';
 
@@ -25,6 +25,14 @@ export const NetworkGraph = () => {
     'Adept Watershaper',
   ]);
   const svgRef = useRef<SVGSVGElement>(null);
+  const [scale, setScale] = useState(1);
+
+  const handleZoom = (direction: 'in' | 'out') => {
+    setScale((prevScale) => {
+      const newScale = direction === 'in' ? prevScale * 1.2 : prevScale / 1.2;
+      return Math.max(0.5, Math.min(newScale, 5));
+    });
+  };
 
   useEffect(() => {
     if (!data || !svgRef.current) return;
@@ -66,8 +74,11 @@ export const NetworkGraph = () => {
       .attr('height', height)
       .attr('viewBox', [0, 0, width, height]);
 
+    // Create a group for zooming
+    const g = svg.append('g');
+
     // Create links
-    const link = svg
+    const link = g
       .append('g')
       .selectAll<SVGLineElement, Link>('line')
       .data(links)
@@ -77,7 +88,7 @@ export const NetworkGraph = () => {
       .attr('stroke-width', 2);
 
     // Create nodes
-    const node = svg
+    const node = g
       .append('g')
       .selectAll<SVGImageElement, Node>('image')
       .data(nodes)
@@ -108,6 +119,11 @@ export const NetworkGraph = () => {
         .attr('y', (d: Node) => (d.y ?? 0) - 28);
     });
 
+    // Apply zoom transform
+    g.attr('transform', `scale(${scale})`);
+    g.style('transform-origin', '50% 50%');
+    g.style('transition', 'transform 0.3s ease-in-out');
+
     // Drag functions
     function dragstarted(event: d3.D3DragEvent<SVGCircleElement, Node, Node>) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -129,35 +145,59 @@ export const NetworkGraph = () => {
     return () => {
       simulation.stop();
     };
-  }, [data]);
+  }, [data, scale]);
 
   if (!data) return null;
 
   return (
     <div>
       <h2>Network Graph</h2>
-      <div className="flex gap-6">
-        <svg
-          ref={svgRef}
-          style={{ border: '1px solid #ddd', width: '800px', height: '600px' }}
-        />
-        <table className="border-collapse border border-gray-300 w-max h-10">
-          <thead>
-            <tr>
-              <th className="border border-gray-300 px-4 py-2 text-left font-semibold">
-                Name
-              </th>
-              <th className="border border-gray-300 px-4 py-2 text-center font-semibold">
-                ID
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((card) => (
-              <MagicCard key={card.id} name={card.name} id={card.id} />
-            ))}
-          </tbody>
-        </table>
+      <div className="flex flex-col gap-4">
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleZoom('in')}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          >
+            Zoom In (+)
+          </button>
+          <button
+            onClick={() => handleZoom('out')}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          >
+            Zoom Out (-)
+          </button>
+          <span className="px-4 py-2 text-gray-500">
+            Zoom: {(scale * 100).toFixed(0)}%
+          </span>
+        </div>
+        <div className="flex gap-6">
+          <svg
+            ref={svgRef}
+            style={{
+              border: '1px solid #ddd',
+              width: '800px',
+              height: '600px',
+              overflow: 'hidden',
+            }}
+          />
+          <table className="border-collapse border border-gray-300 w-max h-10">
+            <thead>
+              <tr>
+                <th className="border border-gray-300 px-4 py-2 text-left font-semibold">
+                  Name
+                </th>
+                <th className="border border-gray-300 px-4 py-2 text-center font-semibold">
+                  ID
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((card) => (
+                <MagicCard key={card.id} name={card.name} id={card.id} />
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

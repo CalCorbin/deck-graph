@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchCards } from '../services/cards.service';
+import { fetchCards } from '@/services/cards.service';
 
 const useCards = () => {
   useQuery({

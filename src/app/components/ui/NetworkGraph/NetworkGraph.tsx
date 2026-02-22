@@ -27,19 +27,17 @@ export const NetworkGraph = () => {
   useEffect(() => {
     if (!data || !svgRef.current) return;
 
-    // Sample data structure - adjust based on your actual data
-    const nodes: Node[] = [
-      { id: '1', label: 'Node 1' },
-      { id: '2', label: 'Node 2' },
-      { id: '3', label: 'Node 3' },
-      { id: '4', label: 'Node 4' },
-    ];
-    const links: Link[] = [
-      { source: '1', target: '2' },
-      { source: '2', target: '3' },
-      { source: '3', target: '4' },
-      { source: '4', target: '1' },
-    ];
+    // Map card data to nodes
+    const nodes: Node[] = data.map((card, index) => ({
+      id: card.id,
+      label: card.name,
+    }));
+
+    // Create links between consecutive nodes (circular pattern)
+    const links: Link[] = nodes.map((node, index) => ({
+      source: node.id,
+      target: nodes[(index + 1) % nodes.length].id,
+    }));
 
     // Set dimensions
     const width = 800;

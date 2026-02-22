@@ -146,10 +146,29 @@ export const NetworkGraph = () => {
   return (
     <div>
       <h2>Network Graph</h2>
-      <svg ref={svgRef} style={{ border: '1px solid #ddd' }} />
-      {data.map((card) => (
-        <MagicCard key={card.name} name={card.name} />
-      ))}
+      <div className="flex gap-6">
+        <svg
+          ref={svgRef}
+          style={{ border: '1px solid #ddd', width: '800px', height: '600px' }}
+        />
+        <table className="border-collapse border border-gray-300 w-max h-10">
+          <thead>
+            <tr>
+              <th className="border border-gray-300 px-4 py-2 text-left font-semibold">
+                Name
+              </th>
+              <th className="border border-gray-300 px-4 py-2 text-center font-semibold">
+                ID
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.map((card) => (
+              <MagicCard key={card.id} name={card.name} id={card.id} />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

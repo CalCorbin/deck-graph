@@ -9,6 +9,7 @@ import { SimulationNodeDatum, SimulationLinkDatum, Simulation } from 'd3';
 interface Node extends SimulationNodeDatum {
   id: string;
   label: string;
+  imageUrl: string;
 }
 
 interface Link extends SimulationLinkDatum<Node> {
@@ -32,6 +33,7 @@ export const NetworkGraph = () => {
     const nodes: Node[] = data.map((card) => ({
       id: card.id,
       label: card.name,
+      imageUrl: card.image_uris?.small || '',
     }));
 
     // Create links between consecutive nodes (circular pattern)
@@ -77,32 +79,21 @@ export const NetworkGraph = () => {
     // Create nodes
     const node = svg
       .append('g')
-      .selectAll<SVGCircleElement, Node>('circle')
+      .selectAll<SVGImageElement, Node>('image')
       .data(nodes)
-      .join('circle')
-      .attr('r', 8)
-      .attr('fill', '#4F46E5')
-      .attr('stroke', '#fff')
-      .attr('stroke-width', 2)
+      .join('image')
+      .attr('href', (d: Node) => d.imageUrl)
+      .attr('width', 40)
+      .attr('height', 56)
+      .attr('x', (d: Node) => (d.x ?? 0) - 20)
+      .attr('y', (d: Node) => (d.y ?? 0) - 28)
       .call(
         d3
-          .drag<SVGCircleElement, Node>()
+          .drag<SVGImageElement, Node>()
           .on('start', dragstarted)
           .on('drag', dragged)
           .on('end', dragended)
       );
-
-    // Create labels
-    const labels = svg
-      .append('g')
-      .selectAll<SVGTextElement, Node>('text')
-      .data(nodes)
-      .join('text')
-      .attr('text-anchor', 'middle')
-      .attr('dy', '.35em')
-      .attr('font-size', '12px')
-      .attr('fill', '#fff')
-      .text((d: Node) => d.label);
 
     // Update positions on simulation tick
     simulation.on('tick', () => {
@@ -112,9 +103,9 @@ export const NetworkGraph = () => {
         .attr('x2', (d: Link) => (d.target as Node).x ?? 0)
         .attr('y2', (d: Link) => (d.target as Node).y ?? 0);
 
-      node.attr('cx', (d: Node) => d.x ?? 0).attr('cy', (d: Node) => d.y ?? 0);
-
-      labels.attr('x', (d: Node) => d.x ?? 0).attr('y', (d: Node) => d.y ?? 0);
+      node
+        .attr('x', (d: Node) => (d.x ?? 0) - 20)
+        .attr('y', (d: Node) => (d.y ?? 0) - 28);
     });
 
     // Drag functions

@@ -4,15 +4,16 @@ import { useCards } from '@/hooks/useCards';
 import { MagicCard } from '@/app/components/features/MagicCard/MagicCard';
 import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import { SimulationNodeDatum, SimulationLinkDatum, Simulation } from 'd3';
 
-interface Node {
+interface Node extends SimulationNodeDatum {
   id: string;
   label: string;
 }
 
-interface Link {
-  source: string;
-  target: string;
+interface Link extends SimulationLinkDatum<Node> {
+  source: string | Node;
+  target: string | Node;
 }
 
 export const NetworkGraph = () => {
@@ -28,7 +29,7 @@ export const NetworkGraph = () => {
     if (!data || !svgRef.current) return;
 
     // Map card data to nodes
-    const nodes: Node[] = data.map((card, index) => ({
+    const nodes: Node[] = data.map((card) => ({
       id: card.id,
       label: card.name,
     }));
@@ -44,11 +45,11 @@ export const NetworkGraph = () => {
     const height = 600;
 
     // Create force simulation
-    const simulation = d3
-      .forceSimulation(nodes as any)
+    const simulation: Simulation<Node, Link> = d3
+      .forceSimulation(nodes)
       .force(
         'link',
-        d3.forceLink(links).id((d: any) => d.id)
+        d3.forceLink<Node, Link>(links).id((d: Node) => d.id)
       )
       .force('charge', d3.forceManyBody().strength(-300))
       .force('center', d3.forceCenter(width / 2, height / 2));
@@ -66,7 +67,7 @@ export const NetworkGraph = () => {
     // Create links
     const link = svg
       .append('g')
-      .selectAll('line')
+      .selectAll<SVGLineElement, Link>('line')
       .data(links)
       .join('line')
       .attr('stroke', '#999')
@@ -76,7 +77,7 @@ export const NetworkGraph = () => {
     // Create nodes
     const node = svg
       .append('g')
-      .selectAll('circle')
+      .selectAll<SVGCircleElement, Node>('circle')
       .data(nodes)
       .join('circle')
       .attr('r', 8)
@@ -85,50 +86,50 @@ export const NetworkGraph = () => {
       .attr('stroke-width', 2)
       .call(
         d3
-          .drag()
+          .drag<SVGCircleElement, Node>()
           .on('start', dragstarted)
           .on('drag', dragged)
-          .on('end', dragended) as any
+          .on('end', dragended)
       );
 
     // Create labels
     const labels = svg
       .append('g')
-      .selectAll('text')
+      .selectAll<SVGTextElement, Node>('text')
       .data(nodes)
       .join('text')
       .attr('text-anchor', 'middle')
       .attr('dy', '.35em')
       .attr('font-size', '12px')
       .attr('fill', '#fff')
-      .text((d: any) => d.label);
+      .text((d: Node) => d.label);
 
     // Update positions on simulation tick
     simulation.on('tick', () => {
       link
-        .attr('x1', (d: any) => d.source.x)
-        .attr('y1', (d: any) => d.source.y)
-        .attr('x2', (d: any) => d.target.x)
-        .attr('y2', (d: any) => d.target.y);
+        .attr('x1', (d: Link) => (d.source as Node).x ?? 0)
+        .attr('y1', (d: Link) => (d.source as Node).y ?? 0)
+        .attr('x2', (d: Link) => (d.target as Node).x ?? 0)
+        .attr('y2', (d: Link) => (d.target as Node).y ?? 0);
 
-      node.attr('cx', (d: any) => d.x).attr('cy', (d: any) => d.y);
+      node.attr('cx', (d: Node) => d.x ?? 0).attr('cy', (d: Node) => d.y ?? 0);
 
-      labels.attr('x', (d: any) => d.x).attr('y', (d: any) => d.y);
+      labels.attr('x', (d: Node) => d.x ?? 0).attr('y', (d: Node) => d.y ?? 0);
     });
 
     // Drag functions
-    function dragstarted(event: any) {
+    function dragstarted(event: d3.D3DragEvent<SVGCircleElement, Node, Node>) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
       event.subject.fx = event.subject.x;
       event.subject.fy = event.subject.y;
     }
 
-    function dragged(event: any) {
+    function dragged(event: d3.D3DragEvent<SVGCircleElement, Node, Node>) {
       event.subject.fx = event.x;
       event.subject.fy = event.y;
     }
 
-    function dragended(event: any) {
+    function dragended(event: d3.D3DragEvent<SVGCircleElement, Node, Node>) {
       if (!event.active) simulation.alphaTarget(0);
       event.subject.fx = null;
       event.subject.fy = null;

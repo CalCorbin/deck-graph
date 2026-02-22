@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint src/",
     "test": "jest",
     "type-check": "tsc --noEmit"
   },
@@ -31,6 +31,7 @@
     "prettier": "3.8.1",
     "tailwindcss": "^4",
     "ts-jest": "^29.4.6",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }

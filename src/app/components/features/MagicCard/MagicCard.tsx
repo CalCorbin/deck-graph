@@ -1,3 +1,3 @@
-export const MagicCard = ({ title }: { title: string }) => {
-  return <div>{title}</div>;
+export const MagicCard = ({ name }: { name: string }) => {
+  return <div>{name}</div>;
 };

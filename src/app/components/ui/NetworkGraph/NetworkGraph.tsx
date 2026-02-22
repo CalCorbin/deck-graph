@@ -1,10 +1,17 @@
+'use client';
+
+import { useCards } from '@/hooks/use-cards';
 import { MagicCard } from '@/app/components/features/MagicCard/MagicCard';
 
 export const NetworkGraph = () => {
+  const [data] = useCards();
+
+  if (!data) return null;
+
   return (
     <div>
       NetworkGraph
-      <MagicCard title="Aust Com" />
+      <MagicCard name={data.name} />
     </div>
   );
 };

@@ -1,0 +1,39 @@
+# [Pull-Request] General workflow on pull requests that triggers basic code validation requirements
+name: "✨ Pull Request Checks"
+on: pull_request
+
+# --------------------------------------------------------------------------------
+# Jobs Run in the `pull-request` Workflow
+# --------------------------------------------------------------------------------
+# [Workflow Notes]:
+#     1. All jobs have `timeout-minutes` set to avoid hanging jobs
+#        - most are set to `60-minutes` but can be adjusted as needed
+# --------------------------------------------------------------------------------
+jobs:
+  # --------------------------------------------------------------------------------
+  # Run basic code checks - (lint, compile, tests)
+  # --------------------------------------------------------------------------------
+  basic-ci-checks:
+    name: "👷 Run Linter, TypeScript Compiler, and Tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      # [Step 1] Check out source code
+      - name: "🛒/ Checkout Repository"
+        uses: actions/checkout@v6
+
+      # [Step 2] Install Dependencies
+      - name: "📦/ Install Dependencies"
+        run: npm i
+
+      # [Step 3] Run Lint
+      - name: "🧹/ Run Lint"
+        run: npm run lint
+
+      # [Step 4] Run TypeScript Compiler Check
+      - name: "🔷/ Run TypeScript Compiler Check"
+        run: npm run type-check
+
+      # [Step 5] Run Tests
+      - name: "🧪/ Run Tests"
+        run: npm run test

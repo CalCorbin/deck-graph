@@ -1,6 +1,6 @@
 'use client';
 
-import { useCards } from '@/hooks/use-cards';
+import { useCards } from '@/hooks/useCards';
 import { MagicCard } from '@/app/components/features/MagicCard/MagicCard';
 
 export const NetworkGraph = () => {

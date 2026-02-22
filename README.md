@@ -3,9 +3,9 @@
 ---
 
 <div style="display: flex; gap: 10px;">
-  <img src="./public/images/readme/catmagic.gif" alt="Cat Magic" width="400"/>
-  <img src="./public/images/readme/wizard.gif" alt="Wizard" width="400"/>
-  <img src="./public/images/readme/fireball.gif" alt="Wizard" width="300"/>
+  <img src="./public/images/readme/catmagic.gif" alt="Cat Magic" width="200"/>
+  <img src="./public/images/readme/wizard.gif" alt="Wizard" width="200"/>
+  <img src="./public/images/readme/fireball.gif" alt="Wizard" width="200"/>
 </div>
 
 ### 📖 Overview

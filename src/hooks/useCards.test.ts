@@ -25,28 +25,45 @@ describe('useCards', () => {
     jest.clearAllMocks();
   });
 
-  it('should return data from fetchCards', async () => {
-    const mockData = { id: 1, name: 'Card 1' };
-    (cardsService.fetchCards as jest.Mock).mockResolvedValue(mockData);
+  it('should fetch cards with provided array and return data', async () => {
+    const mockCards = [{ id: '1', name: 'Card 1' }];
+    const cardNames = ['Card 1'];
 
-    const { result } = renderHook(() => useCards(), {
+    (cardsService.fetchCards as jest.Mock).mockResolvedValue(mockCards);
+
+    const { result } = renderHook(() => useCards(cardNames), {
       wrapper: createWrapper(),
     });
 
     await waitFor(() => {
-      expect(result.current[0]).toEqual(mockData);
+      expect(result.current[0]).toEqual(mockCards);
     });
+
+    expect(cardsService.fetchCards).toHaveBeenCalledWith(cardNames);
   });
 
-  it('should return undefined initially', () => {
+  it('should return undefined while loading', () => {
     (cardsService.fetchCards as jest.Mock).mockImplementation(
       () => new Promise(() => {})
     );
 
-    const { result } = renderHook(() => useCards(), {
+    const { result } = renderHook(() => useCards(['Card 1']), {
       wrapper: createWrapper(),
     });
 
     expect(result.current[0]).toBeUndefined();
+  });
+
+  it('should pass cards parameter to fetchCards', async () => {
+    const cardNames = ['Card A', 'Card B', 'Card C'];
+    (cardsService.fetchCards as jest.Mock).mockResolvedValue([]);
+
+    renderHook(() => useCards(cardNames), {
+      wrapper: createWrapper(),
+    });
+
+    await waitFor(() => {
+      expect(cardsService.fetchCards).toHaveBeenCalledWith(cardNames);
+    });
   });
 });

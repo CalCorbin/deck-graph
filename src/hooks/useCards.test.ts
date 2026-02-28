@@ -1,8 +1,8 @@
-import React from 'react';
-import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useCards } from './useCards';
 import * as cardsService from '@/services/cards.service';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook, waitFor } from '@testing-library/react';
+import React from 'react';
+import { useCards } from './useCards';
 
 jest.mock('@/services/cards.service');
 
@@ -36,7 +36,7 @@ describe('useCards', () => {
     });
 
     await waitFor(() => {
-      expect(result.current[0]).toEqual(mockCards);
+      expect(result.current.data).toEqual(mockCards);
     });
 
     expect(cardsService.fetchCards).toHaveBeenCalledWith(cardNames);
@@ -51,7 +51,7 @@ describe('useCards', () => {
       wrapper: createWrapper(),
     });
 
-    expect(result.current[0]).toBeUndefined();
+    expect(result.current.data).toBeUndefined();
   });
 
   it('should pass cards parameter to fetchCards', async () => {

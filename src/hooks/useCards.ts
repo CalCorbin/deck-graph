@@ -1,11 +1,11 @@
-import { useQuery } from '@tanstack/react-query';
 import { fetchCards } from '@/services/cards.service';
+import { useQuery } from '@tanstack/react-query';
 
 export const useCards = (cards: string[]) => {
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['cards'],
     queryFn: () => fetchCards(cards),
   });
 
-  return [data];
+  return { data, isLoading };
 };

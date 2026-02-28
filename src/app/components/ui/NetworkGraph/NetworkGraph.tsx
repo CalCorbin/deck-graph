@@ -19,7 +19,7 @@ interface Link extends SimulationLinkDatum<Node> {
 }
 
 export const NetworkGraph = () => {
-  const [data, isLoading] = useCards(mockDeck);
+  const { data, isLoading } = useCards(mockDeck);
   const svgRef = useRef<SVGSVGElement>(null);
   const [scale, setScale] = useState(1);
 
@@ -143,9 +143,9 @@ export const NetworkGraph = () => {
     };
   }, [data, scale]);
 
-  if (!data) return null;
-
   if (isLoading) return <div>Loading...</div>;
+
+  if (!data) return null;
 
   return (
     <div>

@@ -1,10 +1,11 @@
 'use client';
 
-import { useCards } from '@/hooks/useCards';
 import { MagicCard } from '@/app/components/features/MagicCard/MagicCard';
-import { useEffect, useRef, useState } from 'react';
+import { mockDeck } from '@/app/components/ui/NetworkGraph/mockDeck';
+import { useCards } from '@/hooks/useCards';
 import * as d3 from 'd3';
-import { SimulationNodeDatum, SimulationLinkDatum, Simulation } from 'd3';
+import { Simulation, SimulationLinkDatum, SimulationNodeDatum } from 'd3';
+import { useEffect, useRef, useState } from 'react';
 
 interface Node extends SimulationNodeDatum {
   id: string;
@@ -18,12 +19,7 @@ interface Link extends SimulationLinkDatum<Node> {
 }
 
 export const NetworkGraph = () => {
-  const [data] = useCards([
-    'Cloud, Ex-SOLDIER',
-    'Hexing Squelcher',
-    'Bre of Clan Stoutarm',
-    'Adept Watershaper',
-  ]);
+  const [data, isLoading] = useCards(mockDeck);
   const svgRef = useRef<SVGSVGElement>(null);
   const [scale, setScale] = useState(1);
 
@@ -148,6 +144,8 @@ export const NetworkGraph = () => {
   }, [data, scale]);
 
   if (!data) return null;
+
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div>

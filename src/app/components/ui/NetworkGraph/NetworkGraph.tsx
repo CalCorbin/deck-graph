@@ -49,9 +49,11 @@ export const NetworkGraph = () => {
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
+        // Account for NavigationBar height (64px = h-16 in Tailwind)
+        const navBarHeight = 64;
         setDimensions({
           width: window.innerWidth,
-          height: window.innerHeight,
+          height: window.innerHeight - navBarHeight,
         });
       }
     };
@@ -186,17 +188,18 @@ export const NetworkGraph = () => {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 w-screen h-screen overflow-hidden"
+      className="fixed top-13 left-0 right-0 bottom-0 w-screen overflow-hidden"
+      style={{ height: 'calc(100vh - 4rem)' }}
     >
       <svg
         ref={svgRef}
         className="w-full h-full"
         style={{
           background: `
-            radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.2) 0%, transparent 50%),
-            radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
-            linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f0f23 75%, #1a1a2e 100%)
+            radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.03) 0%, transparent 40%),
+            linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #050505 50%, #000000 75%, #0a0a0a 100%)
           `,
         }}
       />

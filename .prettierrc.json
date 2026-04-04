@@ -1,0 +1,18 @@
+{
+  "singleQuote": true,
+  "jsxSingleQuote": false,
+  "printWidth": 80,
+  "tabWidth": 2,
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "semi": true,
+  "arrowParens": "always",
+  "endOfLine": "lf",
+  "organizeImportsSkipDestructiveCodeActions": false,
+  "importOrderSeparation": true,
+  "importOrderSortSpecifiers": true,
+  "importOrderBuiltinModulesToTop": true,
+  "importOrderParserPlugins": ["typescript", "jsx", "decorators-legacy"],
+  "importOrderMergeDuplicateImports": true,
+  "importOrderCombineTypeAndValueImports": true
+}

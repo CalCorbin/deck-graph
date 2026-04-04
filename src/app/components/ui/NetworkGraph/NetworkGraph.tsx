@@ -5,7 +5,7 @@ import { mockDeck } from '@/app/components/ui/NetworkGraph/mockDeck';
 import { useCards } from '@/hooks/useCards';
 import * as d3 from 'd3';
 import { Simulation, SimulationLinkDatum, SimulationNodeDatum } from 'd3';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface Node extends SimulationNodeDatum {
   id: string;
@@ -25,12 +25,25 @@ export const NetworkGraph = () => {
   const [scale, setScale] = useState(1);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
-  const handleZoom = (direction: 'in' | 'out') => {
+  const handleWheel = useCallback((event: WheelEvent) => {
+    event.preventDefault();
+    const direction = event.deltaY > 0 ? 'out' : 'in';
     setScale((prevScale) => {
       const newScale = direction === 'in' ? prevScale * 1.2 : prevScale / 1.2;
       return Math.max(0.5, Math.min(newScale, 5));
     });
-  };
+  }, []);
+
+  // Add wheel event listener for zoom
+  useEffect(() => {
+    const svgElement = svgRef.current;
+    if (svgElement) {
+      svgElement.addEventListener('wheel', handleWheel, { passive: false });
+      return () => {
+        svgElement.removeEventListener('wheel', handleWheel);
+      };
+    }
+  }, [handleWheel]);
 
   // Update dimensions when window resizes
   useEffect(() => {
@@ -175,25 +188,6 @@ export const NetworkGraph = () => {
       ref={containerRef}
       className="fixed inset-0 w-screen h-screen overflow-hidden"
     >
-      {/* Optional floating controls */}
-      <div className="absolute top-4 left-4 z-10 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
-        <h2 className="text-lg font-semibold mb-2">Network Graph</h2>
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleZoom('in')}
-            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Zoom In
-          </button>
-          <button
-            onClick={() => handleZoom('out')}
-            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-          >
-            Zoom Out
-          </button>
-        </div>
-      </div>
-
       <svg
         ref={svgRef}
         className="w-full h-full"

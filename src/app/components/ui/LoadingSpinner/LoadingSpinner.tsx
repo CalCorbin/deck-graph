@@ -17,18 +17,28 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
 
   return (
     <div
+      data-testid="loading-spinner"
+      role="status"
+      aria-label="Loading"
       className={`relative flex items-center justify-center ${sizeClasses[size]} ${className}`}
     >
       {/* Outer rotating ring with gradient */}
-      <div className="absolute inset-0 rounded-full border-4 border-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-spin bg-clip-border">
+      <div
+        data-testid="outer-ring"
+        className="absolute inset-0 rounded-full border-4 border-transparent bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 animate-spin bg-clip-border"
+      >
         <div className="absolute inset-1 rounded-full bg-white dark:bg-gray-900"></div>
       </div>
 
       {/* Middle pulsing ring */}
-      <div className="absolute inset-2 rounded-full border-2 border-purple-400 animate-pulse opacity-60"></div>
+      <div
+        data-testid="middle-ring"
+        className="absolute inset-2 rounded-full border-2 border-purple-400 animate-pulse opacity-60"
+      ></div>
 
       {/* Inner rotating dots */}
       <div
+        data-testid="inner-dots"
         className="absolute inset-0 animate-spin"
         style={{ animationDirection: 'reverse', animationDuration: '2s' }}
       >
@@ -152,7 +162,10 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
       ></div>
 
       {/* Loading text with animated dots */}
-      <div className="absolute top-full mt-4 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+      <div
+        data-testid="loading-text"
+        className="absolute top-full mt-4 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
+      >
         <span className="text-gray-600 dark:text-gray-400 text-sm font-medium">
           Retrieving cards
           <span className="inline-block w-3">

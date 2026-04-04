@@ -1,11 +1,11 @@
 'use client';
 
-import { MagicCard } from '@/app/components/features/MagicCard/MagicCard';
+import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner/LoadingSpinner';
 import { mockDeck } from '@/app/components/ui/NetworkGraph/mockDeck';
 import { useCards } from '@/hooks/useCards';
 import * as d3 from 'd3';
 import { Simulation, SimulationLinkDatum, SimulationNodeDatum } from 'd3';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface Node extends SimulationNodeDatum {
   id: string;
@@ -21,14 +21,45 @@ interface Link extends SimulationLinkDatum<Node> {
 export const NetworkGraph = () => {
   const { data, isLoading } = useCards(mockDeck);
   const svgRef = useRef<SVGSVGElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
 
-  const handleZoom = (direction: 'in' | 'out') => {
+  const handleWheel = useCallback((event: WheelEvent) => {
+    event.preventDefault();
+    const direction = event.deltaY > 0 ? 'out' : 'in';
     setScale((prevScale) => {
       const newScale = direction === 'in' ? prevScale * 1.2 : prevScale / 1.2;
       return Math.max(0.5, Math.min(newScale, 5));
     });
-  };
+  }, []);
+
+  // Add wheel event listener for zoom
+  useEffect(() => {
+    const svgElement = svgRef.current;
+    if (svgElement) {
+      svgElement.addEventListener('wheel', handleWheel, { passive: false });
+      return () => {
+        svgElement.removeEventListener('wheel', handleWheel);
+      };
+    }
+  }, [handleWheel]);
+
+  // Update dimensions when window resizes
+  useEffect(() => {
+    const updateDimensions = () => {
+      if (containerRef.current) {
+        setDimensions({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        });
+      }
+    };
+
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+  }, []);
 
   useEffect(() => {
     if (!data || !svgRef.current) return;
@@ -46,9 +77,8 @@ export const NetworkGraph = () => {
       target: nodes[(index + 1) % nodes.length].id,
     }));
 
-    // Set dimensions
-    const width = 800;
-    const height = 600;
+    // Use dynamic dimensions
+    const { width, height } = dimensions;
 
     // Create force simulation
     const simulation: Simulation<Node, Link> = d3
@@ -141,62 +171,35 @@ export const NetworkGraph = () => {
     return () => {
       simulation.stop();
     };
-  }, [data, scale]);
+  }, [data, scale, dimensions]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 z-50">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   if (!data) return null;
 
   return (
-    <div>
-      <h2>Network Graph</h2>
-      <div className="flex flex-col gap-4">
-        <div className="flex gap-2">
-          <button
-            onClick={() => handleZoom('in')}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-          >
-            Zoom In (+)
-          </button>
-          <button
-            onClick={() => handleZoom('out')}
-            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-          >
-            Zoom Out (-)
-          </button>
-          <span className="px-4 py-2 text-gray-500">
-            Zoom: {(scale * 100).toFixed(0)}%
-          </span>
-        </div>
-        <div className="flex gap-6">
-          <svg
-            ref={svgRef}
-            style={{
-              border: '1px solid #ddd',
-              width: '800px',
-              height: '600px',
-              overflow: 'hidden',
-            }}
-          />
-          <table className="border-collapse border border-gray-300 w-max h-10">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 px-4 py-2 text-left font-semibold">
-                  Name
-                </th>
-                <th className="border border-gray-300 px-4 py-2 text-center font-semibold">
-                  ID
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((card) => (
-                <MagicCard key={card.id} name={card.name} id={card.id} />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <div
+      ref={containerRef}
+      className="fixed inset-0 w-screen h-screen overflow-hidden"
+    >
+      <svg
+        ref={svgRef}
+        className="w-full h-full"
+        style={{
+          background: `
+            radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.2) 0%, transparent 50%),
+            radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+            linear-gradient(135deg, #0f0f23 0%, #1a1a2e 25%, #16213e 50%, #0f0f23 75%, #1a1a2e 100%)
+          `,
+        }}
+      />
     </div>
   );
 };

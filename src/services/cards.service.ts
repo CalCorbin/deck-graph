@@ -1,9 +1,11 @@
+import { Card } from '../types/card.types';
+
 const DELAY_MS = 200; // 500ms delay between requests (120 requests/min)
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-export const fetchCards = async (cards: string[]) => {
-  const results = [];
+export const fetchCards = async (cards: string[]): Promise<Card[]> => {
+  const results: Card[] = [];
 
   for (let i = 0; i < cards.length; i++) {
     const cardName = cards[i];
@@ -16,7 +18,7 @@ export const fetchCards = async (cards: string[]) => {
       if (!res.ok) {
         console.error(`Failed to fetch card: ${cardName}`);
       } else {
-        const data = await res.json();
+        const data: Card = await res.json();
         results.push(data);
       }
     } catch (error) {

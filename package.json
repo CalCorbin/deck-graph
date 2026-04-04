@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "deps:minor": "npx npm-check-updates -u --target minor && npm install",
+    "deps:major": "npx npm-check-updates -u --target latest && npm install",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
@@ -11,16 +13,15 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.90.21",
+    "@tanstack/react-query": "^5.96.2",
     "@types/d3": "^7.4.3",
     "d3": "^7.9.0",
-    "next": "16.1.6",
-    "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "next": "16.2.2",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
-    "@tanstack/eslint-plugin-query": "^5.91.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/jest": "^30.0.0",
@@ -28,13 +29,13 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.1.6",
-    "jest": "^30.2.0",
-    "jest-environment-jsdom": "^30.2.0",
+    "eslint-config-next": "16.2.2",
+    "jest": "^30.3.0",
+    "jest-environment-jsdom": "^30.3.0",
     "prettier": "3.8.1",
     "prettier-plugin-organize-imports": "^4.3.0",
     "tailwindcss": "^4",
-    "ts-jest": "^29.4.6",
+    "ts-jest": "^29.4.9",
     "ts-node": "^10.9.2",
     "typescript": "^5"
   }

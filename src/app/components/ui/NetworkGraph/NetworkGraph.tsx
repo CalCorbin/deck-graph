@@ -1,6 +1,7 @@
 'use client';
 
 import { MagicCard } from '@/app/components/features/MagicCard/MagicCard';
+import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner/LoadingSpinner';
 import { mockDeck } from '@/app/components/ui/NetworkGraph/mockDeck';
 import { useCards } from '@/hooks/useCards';
 import * as d3 from 'd3';
@@ -143,7 +144,13 @@ export const NetworkGraph = () => {
     };
   }, [data, scale]);
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-900/80 z-50">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   if (!data) return null;
 

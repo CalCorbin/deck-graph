@@ -1,6 +1,5 @@
 'use client';
 
-import { MagicCard } from '@/app/components/features/MagicCard/MagicCard';
 import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner/LoadingSpinner';
 import { mockDeck } from '@/app/components/ui/NetworkGraph/mockDeck';
 import { useCards } from '@/hooks/useCards';
@@ -185,23 +184,6 @@ export const NetworkGraph = () => {
               overflow: 'hidden',
             }}
           />
-          <table className="border-collapse border border-gray-300 w-max h-10">
-            <thead>
-              <tr>
-                <th className="border border-gray-300 px-4 py-2 text-left font-semibold">
-                  Name
-                </th>
-                <th className="border border-gray-300 px-4 py-2 text-center font-semibold">
-                  ID
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((card) => (
-                <MagicCard key={card.id} name={card.name} id={card.id} />
-              ))}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>

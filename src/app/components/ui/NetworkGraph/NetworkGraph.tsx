@@ -1,5 +1,9 @@
 'use client';
 
+import {
+  FilterOptions,
+  FilterPanel,
+} from '@/app/components/ui/FilterPanel/FilterPanel';
 import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner/LoadingSpinner';
 import { mockDeck } from '@/app/components/ui/NetworkGraph/mockDeck';
 import { useCards } from '@/hooks/useCards';
@@ -11,6 +15,9 @@ interface Node extends SimulationNodeDatum {
   id: string;
   label: string;
   imageUrl: string;
+  cardType?: string;
+  rarity?: string;
+  manaCost?: string;
 }
 
 interface Link extends SimulationLinkDatum<Node> {
@@ -18,12 +25,46 @@ interface Link extends SimulationLinkDatum<Node> {
   target: string | Node;
 }
 
+const getCardTypeColor = (cardType: string) => {
+  const colorMap: { [key: string]: string } = {
+    Creature: '#4ade80',
+    Instant: '#3b82f6',
+    Sorcery: '#8b5cf6',
+    Artifact: '#f59e0b',
+    Enchantment: '#ec4899',
+    Planeswalker: '#f97316',
+    Land: '#84cc16',
+    Battle: '#ef4444',
+  };
+  return colorMap[cardType] || '#6b7280';
+};
+
+const getRarityColor = (rarity: string) => {
+  const colorMap: { [key: string]: string } = {
+    common: '#9ca3af',
+    uncommon: '#60a5fa',
+    rare: '#fbbf24',
+    mythic: '#f87171',
+  };
+  return colorMap[rarity?.toLowerCase()] || '#6b7280';
+};
+
 export const NetworkGraph = () => {
   const { data, isLoading } = useCards(mockDeck);
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [scale, setScale] = useState(1);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+  const [filterPanelVisible, setFilterPanelVisible] = useState(false);
+  const [filters, setFilters] = useState<FilterOptions>({
+    showEdges: true,
+    highlightCardTypes: [],
+    edgeStyle: 'straight',
+    nodeSize: 40,
+    forceStrength: -300,
+    showLabels: false,
+    colorScheme: 'default',
+  });
 
   const handleWheel = useCallback((event: WheelEvent) => {
     event.preventDefault();
@@ -66,11 +107,14 @@ export const NetworkGraph = () => {
   useEffect(() => {
     if (!data || !svgRef.current) return;
 
-    // Map card data to nodes
+    // Map card data to nodes with additional properties
     const nodes: Node[] = data.map((card) => ({
       id: card.id,
       label: card.name,
       imageUrl: card.image_uris?.small || '',
+      cardType: card.type_line?.split('—')[0]?.trim(),
+      rarity: card.rarity,
+      manaCost: card.mana_cost,
     }));
 
     // Create links between consecutive nodes (circular pattern)
@@ -79,17 +123,20 @@ export const NetworkGraph = () => {
       target: nodes[(index + 1) % nodes.length].id,
     }));
 
+    // Filter links based on showEdges setting
+    const filteredLinks = filters.showEdges ? links : [];
+
     // Use dynamic dimensions
     const { width, height } = dimensions;
 
-    // Create force simulation
+    // Create force simulation with dynamic force strength
     const simulation: Simulation<Node, Link> = d3
       .forceSimulation(nodes)
       .force(
         'link',
-        d3.forceLink<Node, Link>(links).id((d: Node) => d.id)
+        d3.forceLink<Node, Link>(filteredLinks).id((d: Node) => d.id)
       )
-      .force('charge', d3.forceManyBody().strength(-300))
+      .force('charge', d3.forceManyBody().strength(filters.forceStrength))
       .force('center', d3.forceCenter(width / 2, height / 2));
 
     // Clear previous content
@@ -105,46 +152,95 @@ export const NetworkGraph = () => {
     // Create a group for zooming
     const g = svg.append('g');
 
-    // Create links
-    const link = g
-      .append('g')
-      .selectAll<SVGLineElement, Link>('line')
-      .data(links)
-      .join('line')
-      .attr('stroke', '#999')
-      .attr('stroke-opacity', 0.6)
-      .attr('stroke-width', 2);
+    // Create links if they should be shown
+    let link: d3.Selection<SVGLineElement, Link, SVGGElement, unknown>;
+    if (filters.showEdges) {
+      link = g
+        .append('g')
+        .selectAll<SVGLineElement, Link>('line')
+        .data(filteredLinks)
+        .join('line')
+        .attr('stroke', '#999')
+        .attr('stroke-opacity', 0.6)
+        .attr('stroke-width', 2)
+        .attr(
+          'stroke-dasharray',
+          filters.edgeStyle === 'dashed' ? '5,5' : null
+        );
+    }
 
-    // Create nodes
-    const node = g
+    // Create node groups
+    const nodeGroup = g
       .append('g')
-      .selectAll<SVGImageElement, Node>('image')
+      .selectAll<SVGGElement, Node>('g')
       .data(nodes)
-      .join('image')
-      .attr('href', (d: Node) => d.imageUrl)
-      .attr('width', 40)
-      .attr('height', 56)
-      .attr('x', (d: Node) => (d.x ?? 0) - 20)
-      .attr('y', (d: Node) => (d.y ?? 0) - 28)
+      .join('g')
       .call(
         d3
-          .drag<SVGImageElement, Node>()
+          .drag<SVGGElement, Node>()
           .on('start', dragstarted)
           .on('drag', dragged)
           .on('end', dragended)
       );
 
+    // Add colored borders for highlighted card types or color schemes
+    nodeGroup
+      .append('rect')
+      .attr('width', filters.nodeSize + 4)
+      .attr('height', filters.nodeSize * 1.4 + 4)
+      .attr('x', -(filters.nodeSize + 4) / 2)
+      .attr('y', -(filters.nodeSize * 1.4 + 4) / 2)
+      .attr('fill', 'none')
+      .attr('stroke', (d: Node) => {
+        if (filters.colorScheme === 'type-based' && d.cardType) {
+          return getCardTypeColor(d.cardType);
+        }
+        if (filters.colorScheme === 'rarity-based' && d.rarity) {
+          return getRarityColor(d.rarity);
+        }
+        if (
+          filters.highlightCardTypes.length > 0 &&
+          d.cardType &&
+          filters.highlightCardTypes.some((type) => d.cardType?.includes(type))
+        ) {
+          return getCardTypeColor(d.cardType);
+        }
+        return 'transparent';
+      })
+      .attr('stroke-width', 2)
+      .attr('rx', 4);
+
+    // Add labels if enabled
+    if (filters.showLabels) {
+      nodeGroup
+        .append('text')
+        .text((d: Node) => d.label)
+        .attr('x', 0)
+        .attr('y', filters.nodeSize * 0.8)
+        .attr('text-anchor', 'middle')
+        .attr('fill', 'white')
+        .attr('font-size', '10px')
+        .attr('font-weight', 'bold')
+        .attr('stroke', 'black')
+        .attr('stroke-width', 0.5)
+        .attr('paint-order', 'stroke');
+    }
+
     // Update positions on simulation tick
     simulation.on('tick', () => {
-      link
-        .attr('x1', (d: Link) => (d.source as Node).x ?? 0)
-        .attr('y1', (d: Link) => (d.source as Node).y ?? 0)
-        .attr('x2', (d: Link) => (d.target as Node).x ?? 0)
-        .attr('y2', (d: Link) => (d.target as Node).y ?? 0);
+      if (filters.showEdges && link) {
+        // Straight lines
+        link
+          .attr('x1', (d: Link) => (d.source as Node).x ?? 0)
+          .attr('y1', (d: Link) => (d.source as Node).y ?? 0)
+          .attr('x2', (d: Link) => (d.target as Node).x ?? 0)
+          .attr('y2', (d: Link) => (d.target as Node).y ?? 0);
+      }
 
-      node
-        .attr('x', (d: Node) => (d.x ?? 0) - 20)
-        .attr('y', (d: Node) => (d.y ?? 0) - 28);
+      nodeGroup.attr(
+        'transform',
+        (d: Node) => `translate(${d.x ?? 0}, ${d.y ?? 0})`
+      );
     });
 
     // Apply zoom transform
@@ -153,18 +249,18 @@ export const NetworkGraph = () => {
     g.style('transition', 'transform 0.3s ease-in-out');
 
     // Drag functions
-    function dragstarted(event: d3.D3DragEvent<SVGCircleElement, Node, Node>) {
+    function dragstarted(event: d3.D3DragEvent<SVGGElement, Node, Node>) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
       event.subject.fx = event.subject.x;
       event.subject.fy = event.subject.y;
     }
 
-    function dragged(event: d3.D3DragEvent<SVGCircleElement, Node, Node>) {
+    function dragged(event: d3.D3DragEvent<SVGGElement, Node, Node>) {
       event.subject.fx = event.x;
       event.subject.fy = event.y;
     }
 
-    function dragended(event: d3.D3DragEvent<SVGCircleElement, Node, Node>) {
+    function dragended(event: d3.D3DragEvent<SVGGElement, Node, Node>) {
       if (!event.active) simulation.alphaTarget(0);
       event.subject.fx = null;
       event.subject.fy = null;
@@ -173,7 +269,7 @@ export const NetworkGraph = () => {
     return () => {
       simulation.stop();
     };
-  }, [data, scale, dimensions]);
+  }, [data, scale, dimensions, filters]);
 
   if (isLoading) {
     return (
@@ -191,6 +287,12 @@ export const NetworkGraph = () => {
       className="fixed top-13 left-0 right-0 bottom-0 w-screen overflow-hidden"
       style={{ height: 'calc(100vh - 4rem)' }}
     >
+      <FilterPanel
+        filters={filters}
+        onFiltersChange={setFilters}
+        isVisible={filterPanelVisible}
+        onToggle={() => setFilterPanelVisible(!filterPanelVisible)}
+      />
       <svg
         ref={svgRef}
         className="w-full h-full"

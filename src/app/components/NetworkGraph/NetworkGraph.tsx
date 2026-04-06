@@ -108,6 +108,7 @@ export const NetworkGraph = () => {
     if (!data || !svgRef.current) return;
 
     // Map card data to nodes with additional properties
+    console.log('data', data);
     const nodes: Node[] = data.map((card) => ({
       id: card.id,
       label: card.name,
@@ -182,6 +183,17 @@ export const NetworkGraph = () => {
           .on('drag', dragged)
           .on('end', dragended)
       );
+
+    // Add card images
+    nodeGroup
+      .append('image')
+      .attr('href', (d: Node) => d.imageUrl)
+      .attr('width', filters.nodeSize)
+      .attr('height', filters.nodeSize * 1.4)
+      .attr('x', -filters.nodeSize / 2)
+      .attr('y', -(filters.nodeSize * 1.4) / 2)
+      .attr('preserveAspectRatio', 'xMidYMid slice')
+      .attr('clip-path', 'inset(0 round 4px)');
 
     // Add colored borders for highlighted card types or color schemes
     nodeGroup

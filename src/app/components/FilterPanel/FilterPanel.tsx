@@ -1,11 +1,11 @@
 'use client';
 
-import { CardTypesSection } from '@/app/components/features/CardTypesSection/CardTypesSection';
-import { GraphStructureSection } from '@/app/components/features/GraphStructureSection/GraphStructureSection';
-import { VisualStyleSection } from '@/app/components/features/VisualStyleSection/VisualStyleSection';
-import { CollapsibleSection } from '@/app/components/ui/FilterPanel/CollapsibleSection/CollapsibleSection';
-import { FilterHeader } from '@/app/components/ui/FilterPanel/FilterHeader/FilterHeader';
-import { ToggleFilterPanelButton } from '@/app/components/ui/FilterPanel/ToggleFilterPanelButton/ToggleFilterPanelButton';
+import { CardTypesSection } from '@/app/components/CardTypesSection/CardTypesSection';
+import { GraphStructureSection } from '@/app/components/GraphStructureSection/GraphStructureSection';
+import { VisualStyleSection } from '@/app/components/VisualStyleSection/VisualStyleSection';
+import { CollapsibleSection } from '@/app/components/FilterPanel/CollapsibleSection/CollapsibleSection';
+import { FilterHeader } from '@/app/components/FilterPanel/FilterHeader/FilterHeader';
+import { ToggleFilterPanelButton } from '@/app/components/FilterPanel/ToggleFilterPanelButton/ToggleFilterPanelButton';
 import { useState } from 'react';
 
 export interface FilterOptions {

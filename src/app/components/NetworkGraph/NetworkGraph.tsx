@@ -3,9 +3,9 @@
 import {
   FilterOptions,
   FilterPanel,
-} from '@/app/components/ui/FilterPanel/FilterPanel';
-import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner/LoadingSpinner';
-import { mockDeck } from '@/app/components/ui/NetworkGraph/mockDeck';
+} from '@/app/components/FilterPanel/FilterPanel';
+import { LoadingSpinner } from '@/app/components/LoadingSpinner/LoadingSpinner';
+import { mockDeck } from '@/app/components/NetworkGraph/mockDeck';
 import { useCards } from '@/hooks/useCards';
 import * as d3 from 'd3';
 import { Simulation, SimulationLinkDatum, SimulationNodeDatum } from 'd3';

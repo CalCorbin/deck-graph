@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { FilterOptions } from '@/app/components/ui/FilterPanel/FilterPanel';
+import { FilterOptions } from '@/app/components/FilterPanel/FilterPanel';
 import { CardTypesSection } from './CardTypesSection';
 
 describe('CardTypesSection', () => {

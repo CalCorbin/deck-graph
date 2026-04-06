@@ -1,5 +1,5 @@
-import { MagicalOrb } from '@/app/components/layout/NavigationBar/MagicalOrb';
-import { MagicalSparkles } from '@/app/components/layout/NavigationBar/MagicalSparkles';
+import { MagicalOrb } from '@/app/components/NavigationBar/MagicalOrb';
+import { MagicalSparkles } from '@/app/components/NavigationBar/MagicalSparkles';
 
 export const NavigationBar = () => {
   return (

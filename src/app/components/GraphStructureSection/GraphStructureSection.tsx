@@ -1,6 +1,6 @@
-import { FilterOptions } from '@/app/components/ui/FilterPanel/FilterPanel';
-import { ToggleButton } from '@/app/components/ui/ToggleButton/ToggleButton';
-import { RangeSlider } from '@/app/components/ui/RangeSlider/RangeSlider';
+import { FilterOptions } from '@/app/components/FilterPanel/FilterPanel';
+import { ToggleButton } from '@/app/components/ToggleButton/ToggleButton';
+import { RangeSlider } from '@/app/components/RangeSlider/RangeSlider';
 
 interface GraphStructureSectionProps {
   filters: FilterOptions;

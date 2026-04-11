@@ -1,4 +1,4 @@
-import { FilterOptions } from '@/app/components/ui/FilterPanel/FilterPanel';
+import { FilterOptions } from '@/app/components/FilterPanel/FilterPanel';
 
 interface CardTypesSectionProps {
   filters: FilterOptions;

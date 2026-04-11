@@ -1,5 +1,5 @@
-import { NavigationBar } from '@/app/components/layout/NavigationBar/NavigationBar';
-import { NetworkGraph } from '@/app/components/ui/NetworkGraph/NetworkGraph';
+import { NavigationBar } from '@/app/components/NavigationBar/NavigationBar';
+import { NetworkGraph } from '@/app/components/NetworkGraph/NetworkGraph';
 
 export default function Home() {
   return (

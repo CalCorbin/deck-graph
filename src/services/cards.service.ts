@@ -1,6 +1,6 @@
 import { Card } from '../types/card.types';
 
-const DELAY_MS = 200; // 500ms delay between requests (120 requests/min)
+const DELAY_MS = 100; // 500ms delay between requests (120 requests/min)
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 

@@ -77,11 +77,13 @@ export const NetworkGraph = () => {
 
   // Add wheel event listener for zoom
   useEffect(() => {
-    const svgElement = svgRef.current;
-    if (svgElement) {
-      svgElement.addEventListener('wheel', handleWheel, { passive: false });
+    const containerElement = containerRef.current;
+    if (containerElement) {
+      containerElement.addEventListener('wheel', handleWheel, {
+        passive: false,
+      });
       return () => {
-        svgElement.removeEventListener('wheel', handleWheel);
+        containerElement.removeEventListener('wheel', handleWheel);
       };
     }
   }, [handleWheel]);
@@ -296,6 +298,7 @@ export const NetworkGraph = () => {
   return (
     <div
       ref={containerRef}
+      data-testid="network-graph-container"
       className="fixed top-13 left-0 right-0 bottom-0 w-screen overflow-hidden"
       style={{ height: 'calc(100vh - 4rem)' }}
     >

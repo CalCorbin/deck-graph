@@ -1,5 +1,8 @@
 'use client';
 
+import * as d3 from 'd3';
+import { Simulation, SimulationLinkDatum, SimulationNodeDatum } from 'd3';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FilterOptions,
   FilterPanel,
@@ -7,9 +10,9 @@ import {
 import { LoadingSpinner } from '@/app/components/LoadingSpinner/LoadingSpinner';
 import { mockDeck } from '@/app/components/NetworkGraph/mockDeck';
 import { useCards } from '@/hooks/useCards';
-import * as d3 from 'd3';
-import { Simulation, SimulationLinkDatum, SimulationNodeDatum } from 'd3';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { getCardTypeColor } from '@/app/components/NetworkGraph/functions/getCardTypeColor';
+import { getRarityColor } from '@/app/components/NetworkGraph/functions/getRarityColor';
+import { useGraphZoom } from '@/app/components/NetworkGraph/hooks/useGraphZoom';
 
 interface Node extends SimulationNodeDatum {
   id: string;
@@ -24,30 +27,6 @@ interface Link extends SimulationLinkDatum<Node> {
   source: string | Node;
   target: string | Node;
 }
-
-const getCardTypeColor = (cardType: string) => {
-  const colorMap: { [key: string]: string } = {
-    Creature: '#4ade80',
-    Instant: '#3b82f6',
-    Sorcery: '#8b5cf6',
-    Artifact: '#f59e0b',
-    Enchantment: '#ec4899',
-    Planeswalker: '#f97316',
-    Land: '#84cc16',
-    Battle: '#ef4444',
-  };
-  return colorMap[cardType] || '#6b7280';
-};
-
-const getRarityColor = (rarity: string) => {
-  const colorMap: { [key: string]: string } = {
-    common: '#9ca3af',
-    uncommon: '#60a5fa',
-    rare: '#fbbf24',
-    mythic: '#f87171',
-  };
-  return colorMap[rarity?.toLowerCase()] || '#6b7280';
-};
 
 export const NetworkGraph = () => {
   const { data, isLoading } = useCards(mockDeck);
@@ -75,18 +54,7 @@ export const NetworkGraph = () => {
     });
   }, []);
 
-  // Add wheel event listener for zoom
-  useEffect(() => {
-    const containerElement = containerRef.current;
-    if (containerElement) {
-      containerElement.addEventListener('wheel', handleWheel, {
-        passive: false,
-      });
-      return () => {
-        containerElement.removeEventListener('wheel', handleWheel);
-      };
-    }
-  }, [handleWheel]);
+  useGraphZoom({ containerRef, handleWheel });
 
   // Update dimensions when window resizes
   useEffect(() => {

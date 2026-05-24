@@ -4,6 +4,8 @@ export interface Card {
   oracle_id: string;
   multiverse_ids: number[];
   mtgo_id?: number;
+  mtgo_foil_id?: number;
+  arena_id?: number;
   tcgplayer_id?: number;
   tcgplayer_etched_id?: number;
   cardmarket_id?: number;
@@ -16,9 +18,9 @@ export interface Card {
   highres_image: boolean;
   image_status: ImageStatus;
   image_uris?: ImageUris;
-  mana_cost: string;
-  cmc: ConvertedManaCost;
-  type_line: string;
+  mana_cost?: string;
+  cmc: number;
+  type_line?: string;
   oracle_text?: string;
   colors: Color[];
   color_identity: Color[];
@@ -61,6 +63,7 @@ export interface Card {
   booster: boolean;
   story_spotlight: boolean;
   edhrec_rank?: number;
+  penny_rank?: number;
   preview?: Preview;
   prices?: Prices;
   related_uris?: RelatedUris;
@@ -74,11 +77,6 @@ export interface ImageUris {
   png?: string;
   art_crop?: string;
   border_crop?: string;
-}
-
-export interface ConvertedManaCost {
-  source: string;
-  parsedValue: number;
 }
 
 export interface Legalities {
@@ -103,6 +101,7 @@ export interface Legalities {
   oldschool: Legality;
   premodern: Legality;
   predh: Legality;
+  tlr: Legality;
 }
 
 export interface Preview {
@@ -114,7 +113,7 @@ export interface Preview {
 export interface Prices {
   usd?: string;
   usd_foil?: string;
-  usd_etched?: string;
+  usd_etched?: string | null;
   eur?: string;
   eur_foil?: string;
   tix?: string;
@@ -134,7 +133,7 @@ export interface PurchaseUris {
 }
 
 // Union types for specific values
-export type CardLayout = 
+export type CardLayout =
   | 'normal'
   | 'split'
   | 'flip'
@@ -155,11 +154,7 @@ export type CardLayout =
   | 'art_series'
   | 'reversible_card';
 
-export type ImageStatus = 
-  | 'missing'
-  | 'placeholder'
-  | 'lowres'
-  | 'highres_scan';
+export type ImageStatus = 'missing' | 'placeholder' | 'lowres' | 'highres_scan';
 
 export type Color = 'W' | 'U' | 'B' | 'R' | 'G' | 'C';
 
@@ -167,7 +162,13 @@ export type Game = 'paper' | 'arena' | 'mtgo';
 
 export type Finish = 'nonfoil' | 'foil' | 'etched' | 'glossy';
 
-export type Rarity = 'common' | 'uncommon' | 'rare' | 'mythic' | 'special' | 'bonus';
+export type Rarity =
+  | 'common'
+  | 'uncommon'
+  | 'rare'
+  | 'mythic'
+  | 'special'
+  | 'bonus';
 
 export type BorderColor = 'black' | 'white' | 'borderless' | 'silver' | 'gold';
 

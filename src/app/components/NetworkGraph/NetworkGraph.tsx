@@ -1,7 +1,7 @@
 'use client';
 
 import * as d3 from 'd3';
-import { Simulation, SimulationLinkDatum, SimulationNodeDatum } from 'd3';
+import { Simulation } from 'd3';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FilterOptions,
@@ -13,20 +13,9 @@ import { useCards } from '@/hooks/useCards';
 import { getCardTypeColor } from '@/app/components/NetworkGraph/functions/getCardTypeColor';
 import { getRarityColor } from '@/app/components/NetworkGraph/functions/getRarityColor';
 import { useGraphZoom } from '@/app/components/NetworkGraph/hooks/useGraphZoom';
-
-interface Node extends SimulationNodeDatum {
-  id: string;
-  label: string;
-  imageUrl: string;
-  cardType?: string;
-  rarity?: string;
-  manaCost?: string;
-}
-
-interface Link extends SimulationLinkDatum<Node> {
-  source: string | Node;
-  target: string | Node;
-}
+import { useResizeWindow } from '@/app/components/NetworkGraph/hooks/useResizeWindow';
+import { Node, Link } from './types';
+import { createNodes } from '@/app/components/NetworkGraph/functions/createNodes';
 
 export const NetworkGraph = () => {
   const { data, isLoading } = useCards(mockDeck);
@@ -55,38 +44,13 @@ export const NetworkGraph = () => {
   }, []);
 
   useGraphZoom({ containerRef, handleWheel });
-
-  // Update dimensions when window resizes
-  useEffect(() => {
-    const updateDimensions = () => {
-      if (containerRef.current) {
-        // Account for NavigationBar height (64px = h-16 in Tailwind)
-        const navBarHeight = 64;
-        setDimensions({
-          width: window.innerWidth,
-          height: window.innerHeight - navBarHeight,
-        });
-      }
-    };
-
-    updateDimensions();
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, []);
+  useResizeWindow({ containerRef, setDimensions });
 
   useEffect(() => {
     if (!data || !svgRef.current) return;
 
     // Map card data to nodes with additional properties
-    console.log('data', data);
-    const nodes: Node[] = data.map((card) => ({
-      id: card.id,
-      label: card.name,
-      imageUrl: card.image_uris?.small || '',
-      cardType: card.type_line?.split('—')[0]?.trim(),
-      rarity: card.rarity,
-      manaCost: card.mana_cost,
-    }));
+    const nodes: Node[] = createNodes(data);
 
     // Create links between consecutive nodes (circular pattern)
     const links: Link[] = nodes.map((node, index) => ({

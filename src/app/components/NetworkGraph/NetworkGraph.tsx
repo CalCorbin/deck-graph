@@ -2,7 +2,7 @@
 
 import * as d3 from 'd3';
 import { Simulation } from 'd3';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   FilterOptions,
   FilterPanel,
@@ -12,7 +12,6 @@ import { mockDeck } from '@/app/components/NetworkGraph/mockDeck';
 import { useCards } from '@/hooks/useCards';
 import { getCardTypeColor } from '@/app/components/NetworkGraph/functions/getCardTypeColor';
 import { getRarityColor } from '@/app/components/NetworkGraph/functions/getRarityColor';
-import { useGraphZoom } from '@/app/components/NetworkGraph/hooks/useGraphZoom';
 import { useResizeWindow } from '@/app/components/NetworkGraph/hooks/useResizeWindow';
 import { Node, Link } from './types';
 import { createNodes } from '@/app/components/NetworkGraph/functions/createNodes';
@@ -21,7 +20,6 @@ export const NetworkGraph = () => {
   const { data, isLoading } = useCards(mockDeck);
   const svgRef = useRef<SVGSVGElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [filterPanelVisible, setFilterPanelVisible] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
@@ -34,16 +32,6 @@ export const NetworkGraph = () => {
     colorScheme: 'default',
   });
 
-  const handleWheel = useCallback((event: WheelEvent) => {
-    event.preventDefault();
-    const direction = event.deltaY > 0 ? 'out' : 'in';
-    setScale((prevScale) => {
-      const newScale = direction === 'in' ? prevScale * 1.2 : prevScale / 1.2;
-      return Math.max(0.5, Math.min(newScale, 5));
-    });
-  }, []);
-
-  useGraphZoom({ containerRef, handleWheel });
   useResizeWindow({ containerRef, setDimensions });
 
   useEffect(() => {
@@ -86,6 +74,15 @@ export const NetworkGraph = () => {
 
     // Create a group for zooming
     const g = svg.append('g');
+
+    // Set up zoom for the graph
+    const zoom = d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 4])
+      .on('zoom', (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
+        g.attr('transform', event.transform.toString());
+      });
+    svg.call(zoom);
 
     // Create links if they should be shown
     let link: d3.Selection<SVGLineElement, Link, SVGGElement, unknown>;
@@ -189,11 +186,6 @@ export const NetworkGraph = () => {
       );
     });
 
-    // Apply zoom transform
-    g.attr('transform', `scale(${scale})`);
-    g.style('transform-origin', '50% 50%');
-    g.style('transition', 'transform 0.3s ease-in-out');
-
     // Drag functions
     function dragstarted(event: d3.D3DragEvent<SVGGElement, Node, Node>) {
       if (!event.active) simulation.alphaTarget(0.3).restart();
@@ -215,7 +207,7 @@ export const NetworkGraph = () => {
     return () => {
       simulation.stop();
     };
-  }, [data, scale, dimensions, filters]);
+  }, [data, dimensions, filters]);
 
   if (isLoading) {
     return (

@@ -217,8 +217,6 @@ export const NetworkGraph = () => {
     );
   }
 
-  if (!data) return null;
-
   return (
     <div
       ref={containerRef}
@@ -226,24 +224,30 @@ export const NetworkGraph = () => {
       className="fixed top-13 left-0 right-0 bottom-0 w-screen overflow-hidden"
       style={{ height: 'calc(100vh - 4rem)' }}
     >
-      <FilterPanel
-        filters={filters}
-        onFiltersChange={setFilters}
-        isVisible={filterPanelVisible}
-        onToggle={() => setFilterPanelVisible(!filterPanelVisible)}
-      />
-      <svg
-        ref={svgRef}
-        className="w-full h-full"
-        style={{
-          background: `
+      {data?.length ? (
+        <>
+          <FilterPanel
+            filters={filters}
+            onFiltersChange={setFilters}
+            isVisible={filterPanelVisible}
+            onToggle={() => setFilterPanelVisible(!filterPanelVisible)}
+          />
+          <svg
+            ref={svgRef}
+            className="w-full h-full"
+            style={{
+              background: `
             radial-gradient(circle at 20% 80%, rgba(168, 85, 247, 0.05) 0%, transparent 40%),
             radial-gradient(circle at 80% 20%, rgba(236, 72, 153, 0.05) 0%, transparent 40%),
             radial-gradient(circle at 40% 40%, rgba(59, 130, 246, 0.03) 0%, transparent 40%),
             linear-gradient(135deg, #000000 0%, #0a0a0a 25%, #050505 50%, #000000 75%, #0a0a0a 100%)
           `,
-        }}
-      />
+            }}
+          />
+        </>
+      ) : (
+        <div>No Card Data Present</div>
+      )}
     </div>
   );
 };

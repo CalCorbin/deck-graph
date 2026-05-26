@@ -10,6 +10,12 @@ const config: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  transform: {
+    '^.+\\.[tj]sx?$': ['ts-jest', { tsconfig: { allowJs: true } }],
+  },
+  transformIgnorePatterns: [
+    '/node_modules/(?!d3|internmap|robust-predicates|delaunator)/',
+  ],
 };
 
 export default config;
